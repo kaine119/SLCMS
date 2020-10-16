@@ -42,6 +42,7 @@ namespace SLCMS.ViewModel
         private int _numberofVisitorRecordsSelected;
         private PersonnelDetails _visitorDetails;
         private PersonnelDetails _escortDetails;
+        private PersonnelDetails _escortOutDetails;
         private IList<VisitorRecord> _selectedVisitorRecords;
         private IList<VisitorRecord> _visitorRecords;
 
@@ -265,6 +266,15 @@ namespace SLCMS.ViewModel
             {
                 _escortDetails = value;
                 RaisePropertyChangedEvent(nameof(EscortDetails));
+            }
+        }
+        public PersonnelDetails EscortOutDetails
+        {
+            get => _escortOutDetails;
+            set
+            {
+                _escortDetails = value;
+                RaisePropertyChangedEvent(nameof(EscortOutDetails));
             }
         }
         public IList<VisitorRecord> SelectedVisitorRecords

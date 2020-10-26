@@ -32,25 +32,43 @@ namespace SLCMS.ViewModel
             }
         }
     }
-    //public class RelayCommand<T> : ICommand
-    //{
-    //    private readonly Action<T> _execute;
-    //    private readonly Func<T, bool> _canExecute;
 
-    //    event EventHandler ICommand.CanExecuteChanged
-    //    {
-    //        add => CommandManager.RequerySuggested += value;
-    //        remove => CommandManager.RequerySuggested -= value;
-    //    }
+    public class RelayCommand<T> : ICommand
+    {
+        private readonly Action<T> _execute;
+        private readonly Func<T, bool> _canExecute;
 
-    //    public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
-    //    {
-    //        _execute = execute;
-    //        _canExecute = canExecute;
-    //    }
+        event EventHandler ICommand.CanExecuteChanged
+        {
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
 
-    //    bool ICommand.CanExecute(object parameter) => _canExecute == null || _canExecute((T)parameter);
+        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
+        {
+            _execute = execute;
+            _canExecute = canExecute;
+        }
 
-    //    void ICommand.Execute(object parameter) => _execute((T)parameter);
-    //}
+        // If there isn't a _canExecute, assume it can always execute.
+        public bool CanExecute(object parameter) => _canExecute == null || _canExecute((T)parameter);
+
+        [HandleProcessCorruptedStateExceptions]
+        public void Execute(object parameter)
+        {
+            try
+            {
+                _execute((T)parameter);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"An application error occurred. Please contact the adminstrator with the following information:\nPlease ensure the database is not used by another process\n\n{ex.Message}",
+                    "Oooops... An unexpected error occurred! [Delegate]",
+                    MessageBoxButton.OK);
+
+                Global.MainViewModel.IsLoading = false;
+            }
+        }
+    }
 }

@@ -145,7 +145,8 @@ namespace SLCMS
                 case Key.End:
                     switch (ViewMainTabControl.SelectedIndex)
                     {
-                        case 0: Global.MainViewModel.ViewModelDashBoard.BookOutVisitorDataCommand?.Execute(null);
+                        case 0:
+                            Global.MainViewModel.ViewModelDashBoard.BookOutVisitorDataCommand?.Execute(ViewControlDashboard.EscortOutDialog);
                             break;
                         case 1: Global.MainViewModel.ViewModelBookInPersonnel.BookInAllPersonnelCommand?.Execute(null);
                             break;
@@ -163,6 +164,9 @@ namespace SLCMS
                         return;
 
                     if(ViewControlDashboard.SearchTextBox.IsFocused)
+                        return;
+
+                    if (ViewControlDashboard.EscortOutDialog.Visibility == Visibility.Visible)
                         return;
 
                     ViewControlDashboard.SearchTextBox.Focus();

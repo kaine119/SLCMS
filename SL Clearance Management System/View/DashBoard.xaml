@@ -183,6 +183,7 @@
             </TextBlock>
             <Button x:Name="BookOutButtonControl" Grid.Row="6" Grid.Column="6" FontSize="16" FontFamily="Calibri light" Margin="5,3,5,2" Content="BOOK OUT" TabIndex="1"
                 Command="{Binding BookOutVisitorDataCommand}"
+                CommandParameter="{Binding ElementName=EscortOutDialog, Mode=OneWay}"
                 IsEnabled="{Binding NumberofVisitorRecordsSelected, Converter={StaticResource NullOrFalse2BooleanFalseConvertor}}"
                 ToolTip="Press the 'End' Key to Book-Out all selected visitors"/>
 
@@ -199,7 +200,8 @@
 
         <Grid>
             <uiControls:SelectEscortPersonnelDialogueControl Visibility="Collapsed"
-                                                             DataContext="{Binding EscortOutDetails}"/>
+                                                             DataContext="{Binding EscortDetails, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             x:Name="EscortOutDialog"/>
         </Grid>
     </Grid>
 

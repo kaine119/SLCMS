@@ -3,14 +3,17 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using SLCMS.BusinessLogic;
 using SLCMS.Model;
+using SLCMS.View.UIControls;
 
 namespace SLCMS.ViewModel
 {
-    public class DashBoardViewModel : INotifyPropertyChanged {
+    public class DashBoardViewModel : INotifyPropertyChanged
+    {
         public readonly TextBox SearchControlTextBox;
 
         #region [private Variables]
@@ -47,7 +50,7 @@ namespace SLCMS.ViewModel
         private IList<VisitorRecord> _visitorRecords;
 
         private ICommand _refreshVisitorDataCommand;
-        private ICommand _bookOutVisitorDataCommand;
+        private RelayCommand<SelectEscortPersonnelDialogueControl> _bookOutVisitorDataCommand;
 
         #endregion
 
@@ -188,9 +191,11 @@ namespace SLCMS.ViewModel
                 RaisePropertyChangedEvent(nameof(TotalNumberofLoanedCivilianPasses));
             }
         }
-        public int TotalNumberofForeignPass {
+        public int TotalNumberofForeignPass
+        {
             get => _numberofLoanedForeignPass;
-            set {
+            set
+            {
                 _numberofLoanedForeignPass = value;
                 RaisePropertyChangedEvent(nameof(TotalNumberofForeignPass));
                 RaisePropertyChangedEvent(nameof(TotalNumberofLoanedCivilianPasses));
@@ -252,9 +257,11 @@ namespace SLCMS.ViewModel
                 RaisePropertyChangedEvent(nameof(NumberofVisitorRecordsSelected));
             }
         }
-        public PersonnelDetails VisitorDetails {
+        public PersonnelDetails VisitorDetails
+        {
             get => _visitorDetails;
-            set {
+            set
+            {
                 _visitorDetails = value;
                 RaisePropertyChangedEvent(nameof(VisitorDetails));
             }
@@ -284,12 +291,14 @@ namespace SLCMS.ViewModel
             {
                 _selectedVisitorRecords = value;
                 RaisePropertyChangedEvent(nameof(SelectedVisitorRecords));
-                
+
                 NumberofVisitorRecordsSelected = _selectedVisitorRecords?.Count ?? 0;
-                if (NumberofVisitorRecordsSelected == 1) {
+                if (NumberofVisitorRecordsSelected == 1)
+                {
                     VisitorDetails = _selectedVisitorRecords?[0]?.Visitor;
                     EscortDetails = _selectedVisitorRecords?[0]?.Escort;
-                } else
+                }
+                else
                 {
                     VisitorDetails = null;
                     EscortDetails = _selectedVisitorRecords?.Select(x => x?.Escort?.NRIC).Where(x => x != "NA").Distinct().Count() == 1
@@ -303,7 +312,8 @@ namespace SLCMS.ViewModel
         public IList<VisitorRecord> VisitorRecords
         {
             get => _visitorRecords;
-            set {
+            set
+            {
                 _visitorRecords = value;
                 RecaculatePasses();
                 RaisePropertyChangedEvent(nameof(VisitorRecords));
@@ -317,14 +327,17 @@ namespace SLCMS.ViewModel
         public ICommand RefreshVisitorDataCommand
         {
             get => _refreshVisitorDataCommand;
-            set {
+            set
+            {
                 _refreshVisitorDataCommand = value;
                 RaisePropertyChangedEvent(nameof(RefreshVisitorDataCommand));
             }
         }
-        public ICommand BookOutVisitorDataCommand {
+        public RelayCommand<SelectEscortPersonnelDialogueControl> BookOutVisitorDataCommand
+        {
             get => _bookOutVisitorDataCommand;
-            set {
+            set
+            {
                 _bookOutVisitorDataCommand = value;
                 RaisePropertyChangedEvent(nameof(BookOutVisitorDataCommand));
             }
@@ -333,39 +346,95 @@ namespace SLCMS.ViewModel
         #endregion
 
 
-        public DashBoardViewModel(TextBox searchControlTextBox) {
+        public DashBoardViewModel(TextBox searchControlTextBox)
+        {
             SearchControlTextBox = searchControlTextBox;
 
             NumberofVisitorRecordsSelected = 0;
             VisitorRecords = new ObservableCollection<VisitorRecord>();
 
-            RefreshVisitorDataCommand = new RelayCommand(async delegate {
+            RefreshVisitorDataCommand = new RelayCommand(async delegate
+            {
                 Global.MainViewModel.IsLoading = true;
                 VisitorRecords = await Task.Run(() => Global.DataBase.GetVisitorRecords());
                 searchControlTextBox.Clear();
                 searchControlTextBox.Focus();
                 Global.MainViewModel.IsLoading = false;
             });
-            BookOutVisitorDataCommand = new RelayCommand(async delegate {
+            BookOutVisitorDataCommand = new RelayCommand<SelectEscortPersonnelDialogueControl>(async delegate (SelectEscortPersonnelDialogueControl dialogue)
+            {
                 if (SelectedVisitorRecords == null || SelectedVisitorRecords.Count == 0)
                     return;
 
-                Global.MainViewModel.IsLoading = true;
-                VisitorRecords = await Task.Run(() => Global.DataBase.BookOutVisitorRecords(SelectedVisitorRecords));
-                searchControlTextBox.Clear();
-                searchControlTextBox.Focus();
-                Global.MainViewModel.IsLoading = false;
+                // Check if the visitors all came in under the same escort
+                // If they aren't, warn the user that they're booking multiple groups out.
+                VisitorRecord firstRecord = SelectedVisitorRecords.First();
+                string firstEscortNRIC = firstRecord.Escort?.NRIC;
+                if (!SelectedVisitorRecords.All(record => record.Escort?.NRIC == firstEscortNRIC))
+                {
+                    System.Diagnostics.Debug.WriteLine($"{firstEscortNRIC}, [{string.Join(",", SelectedVisitorRecords.Select(record => record.Escort?.NRIC))}]");
+                    MessageBoxResult cont = MessageBox.Show(
+                        "The selected personnel have different escorts. Are you sure you want to book them out together?",
+                        "Multiple groups",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+                    if (cont == (MessageBoxResult.No | MessageBoxResult.None))
+                    {
+                        return;
+                    }
+                }
+
+                // If the personnel was escorted in, they'll need to be escorted out too.
+                if (firstRecord.Escort != null)
+                {
+                    dialogue.Visibility = Visibility.Visible;
+                    dialogue.DataContext = firstRecord.Escort;
+                    dialogue.ConfirmEscortButton.Click += async (_, __) =>
+                    {
+                        if (dialogue.DataContext is PersonnelDetails details)
+                        {
+                            dialogue.Visibility = Visibility.Collapsed;
+                            foreach (var record in SelectedVisitorRecords)
+                            {
+                                record.EscortOut = details;
+                            }
+                        }
+
+                        Global.MainViewModel.IsLoading = true;
+                        VisitorRecords = await Task.Run(() => Global.DataBase.BookOutVisitorRecords(SelectedVisitorRecords));
+                        searchControlTextBox.Clear();
+                        searchControlTextBox.Focus();
+                        Global.MainViewModel.IsLoading = false;
+                    };
+                    return;
+                } 
+                // Otherwise, they won't; book them out immediately.
+                else
+                {
+                    foreach (var record in SelectedVisitorRecords)
+                    {
+                        record.EscortOut = null;
+                    }
+                    Global.MainViewModel.IsLoading = true;
+                    VisitorRecords = await Task.Run(() => Global.DataBase.BookOutVisitorRecords(SelectedVisitorRecords));
+                    searchControlTextBox.Clear();
+                    searchControlTextBox.Focus();
+                    Global.MainViewModel.IsLoading = false;
+                }
+                
             });
         }
 
         #region [Functions]
 
-        public bool HasPassBeenIssued(string passId) {
+        public bool HasPassBeenIssued(string passId)
+        {
             return VisitorRecords.Any(x => x.PersonnelPass == passId);
         }
 
-        public void RecaculatePasses() {
-            if(Global.MainViewModel?.ViewModelPassManagement?.ListofVisitorPasses == null)
+        public void RecaculatePasses()
+        {
+            if (Global.MainViewModel?.ViewModelPassManagement?.ListofVisitorPasses == null)
                 return;
 
             var listofAllVisitorPasses = Global.MainViewModel.ViewModelPassManagement.ListofVisitorPasses;
@@ -386,7 +455,7 @@ namespace SLCMS.ViewModel
                      ).ToArray();
 
             TotalNumberofForeignPass = VisitorRecords.Count(x => !string.IsNullOrWhiteSpace(x.PersonnelPass) && x.PersonnelPass != "NA") - matchVisitorPasses.Count();
-            if(TotalNumberofForeignPass <= 0)
+            if (TotalNumberofForeignPass <= 0)
                 TotalNumberofForeignPass = 0;
 
             NumberofLoanedMilitaryPassAreaA = matchVisitorPasses.Count(x => x.AreaAccess == ClearanceLevelEnum.A && !x.RequireEscort);

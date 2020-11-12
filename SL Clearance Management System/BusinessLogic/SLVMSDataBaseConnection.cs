@@ -256,7 +256,8 @@ namespace SLCMS.BusinessLogic {
                 VehiclePass = readerInstance[23].ToString().ToUpper(),
                 VehicleNum = readerInstance[24].ToString().ToUpper(),
                 LockerNum = readerInstance[25].ToString().ToUpper(),
-                InCampStatus = readerInstance.GetBoolean(26)
+                InCampStatus = readerInstance.GetBoolean(26),
+                EscortOut = (readerInstance[27].ToString() == "NA") ? null : ReadToPersonnelDetails(readerInstance, 27, false),
             };
         }
 

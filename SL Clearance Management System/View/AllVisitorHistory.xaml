@@ -50,12 +50,12 @@
         </TextBox>
 
         <!-- Data Grid -->
-        <DataGrid   Grid.Row="2" Grid.Column="1"
-                    Grid.RowSpan="9" Grid.ColumnSpan="3"
-                    ItemsSource="{Binding VisitorRecords}"
-                    x:Name="VisitorHistoryDataGrid" IsReadOnly="True" SelectionUnit="FullRow" AutoGenerateColumns="False"
-                    controls:DataGridTextSearch.SearchValue="{Binding ElementName=SearchTextBox, Path=Text, UpdateSourceTrigger=PropertyChanged}"
-                    LoadingRow="VisitorHistoryDataGrid_LoadingRow" SelectionChanged="VisitorHistoryDataGrid_SelectionChanged" RowHeight="30">
+        <DataGrid Grid.Row="2" Grid.Column="1"
+                  Grid.RowSpan="9" Grid.ColumnSpan="3"
+                  ItemsSource="{Binding VisitorRecords}"
+                  x:Name="VisitorHistoryDataGrid" IsReadOnly="True" SelectionUnit="FullRow" AutoGenerateColumns="False"
+                  controls:DataGridTextSearch.SearchValue="{Binding ElementName=SearchTextBox, Path=Text, UpdateSourceTrigger=PropertyChanged}"
+                  LoadingRow="VisitorHistoryDataGrid_LoadingRow" SelectionChanged="VisitorHistoryDataGrid_SelectionChanged" RowHeight="30">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Book In Time"    MinWidth="120" MaxWidth="120" Binding="{Binding Path=StartTime, Mode=OneWay, StringFormat=\{0:dd/MM/yy HH:mm:ss\}}"/>
                 <DataGridTextColumn Header="Book Out Time"   MinWidth="120" MaxWidth="120" Binding="{Binding Path=EndTime, Mode=OneWay, StringFormat=\{0:dd/MM/yy HH:mm:ss\}}"  SortDirection="Descending"/>
@@ -64,9 +64,9 @@
                 <DataGridTextColumn Header="Name of Visitor" Width="180" CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=Visitor.RankAndName, Mode=OneWay}"/>
                 <DataGridTextColumn Header="Escort NRIC"     Width="100" CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=EscortNRIC, Mode=OneWay, FallbackValue='NA'}" />
                 <DataGridTextColumn Header="Name of Escort"  Width="180" CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=Escort.RankAndName, Mode=OneWay, FallbackValue='NA'}" />
-                <DataGridTextColumn Header="Visitor Contact No." Width="120" CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=Visitor.Contact, Mode=OneWay, FallbackValue='NA'}" />
+                <DataGridTextColumn Header="Escort Out NRIC" Width="100" CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=EscortOutNRIC, Mode=OneWay, FallbackValue='NA'}"/>
+                <DataGridTextColumn Header="Escorted out by" Width="180" CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=EscortOut.RankAndName, Mode=OneWay, FallbackValue='NA'}"/>
                 <DataGridTextColumn Header="Veh. Pass"       Width="80"  CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=VehiclePass, Mode=OneWay}"/>
-                <DataGridTextColumn Header="Veh. Num"        Width="80"  CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=VehicleNum, Mode=OneWay}"/>
                 <DataGridTextColumn Header="Locker"          Width="60"  CellStyle="{StaticResource SearchableDataGridCell}" Binding="{Binding Path=LockerNum, Mode=OneWay}"/>
             </DataGrid.Columns>
         </DataGrid>

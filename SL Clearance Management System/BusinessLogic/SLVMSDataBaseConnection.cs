@@ -414,10 +414,12 @@ namespace SLCMS.BusinessLogic {
                 foreach (var indexRecord in recordstoBookOut)
                 {
                     indexRecord.InCampStatus = false;
-                    comm.CommandText = "UPDATE VisitorRecords " + "SET INCAMPSTATUS=FALSE, TIMEOUT=@_timeout " +
-                                       "WHERE INCAMPSTATUS=TRUE AND NRIC=@_nric AND ESCORTNRIC=@_escortnric";
+                    comm.CommandText = @"UPDATE VisitorRecords
+                                         SET INCAMPSTATUS=FALSE, TIMEOUT=@_timeout, ESCORTOUTNRIC=@_escortoutnric
+                                         WHERE INCAMPSTATUS=TRUE AND NRIC=@_nric AND ESCORTNRIC=@_escortnric";
 
                     comm.Parameters.AddWithValue("@_timeout", timeoutDateTimeStr);
+                    comm.Parameters.AddWithValue("@_escortoutnric", indexRecord.EscortOutNRIC);
                     comm.Parameters.AddWithValue("@_nric", indexRecord.NRIC);
                     comm.Parameters.AddWithValue("@_escortnric", indexRecord.EscortNRIC);
 

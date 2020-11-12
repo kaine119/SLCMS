@@ -275,13 +275,15 @@ namespace SLCMS.BusinessLogic {
                 vmsDatabase.Open();
                 var comm = new OleDbCommand {
                     CommandText =
-                        "SELECT " +
-                        "Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks," +
-                        "Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks," +
-                        "Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS " +
-                        "FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort " +
-                        "WHERE Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC AND Record.INCAMPSTATUS=TRUE " +
-                        "ORDER BY Record.TIMEIN DESC",
+                        @"
+                            SELECT Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks,
+                                   Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks,
+                                   Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS,
+                                   EscortOut.NRIC, EscortOut.RANK, EscortOut.FULLNAME, EscortOut.CONTACT, EscortOut.COMPANY, EscortOut.VEHICLENUM, EscortOut.IsMilitaryPersonnel, EscortOut.AllowToEscort, EscortOut.BAN, EscortOut.Remarks
+                            FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort, PersonnelDetails AS EscortOut
+                            WHERE Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC AND EscortOut.NRIC=Record.ESCORTOUTNRIC AND Record.INCAMPSTATUS=TRUE
+                            ORDER BY Record.TIMEIN DESC
+                        ",
                     Connection = vmsDatabase
                 };
 
@@ -316,17 +318,21 @@ namespace SLCMS.BusinessLogic {
                 vmsDatabase.Open();
                 var comm = new OleDbCommand {
                     CommandText =
-                        "SELECT " +
-                        "Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks," +
-                        "Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks," +
-                        "Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS " +
-                        "FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort " +
-                        "WHERE (Record.NRIC=@_visitornric OR Record.ESCORTNRIC=@_escortnric) " +
-                        "AND Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC",
+                        @"
+                            SELECT Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks,
+                                   Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks,
+                                   Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS,
+                                   EscortOut.NRIC, EscortOut.RANK, EscortOut.FULLNAME, EscortOut.CONTACT, EscortOut.COMPANY, EscortOut.VEHICLENUM, EscortOut.IsMilitaryPersonnel, EscortOut.AllowToEscort, EscortOut.BAN, EscortOut.Remarks
+                            FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort, PersonnelDetails AS EscortOut
+                            WHERE Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC AND EscortOut.NRIC=Record.ESCORTOUTNRIC AND Record.INCAMPSTATUS=TRUE 
+                                  AND (Record.NRIC=@_visitornric OR Record.ESCORTNRIC=@_escortnric OR Record.ESCORTOUTNRIC=@_escortoutnric)
+                            ORDER BY Record.TIMEIN DESC
+                        ",
                     Connection = vmsDatabase
                 };
                 comm.Parameters.AddWithValue("@_visitornric", nric);
                 comm.Parameters.AddWithValue("@_escortnric", nric);
+                comm.Parameters.AddWithValue("@_escortoutnric", nric);
 
                 var reader = comm.ExecuteReader();
                 if(reader != null && reader.HasRows) {
@@ -358,13 +364,16 @@ namespace SLCMS.BusinessLogic {
                 vmsDatabase.Open();
                 var comm = new OleDbCommand {
                     CommandText =
-                        "SELECT " +
-                        "Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks," +
-                        "Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks," +
-                        "Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS " +
-                        "FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort " +
-                        "WHERE Record.PASSNO=@_visitorpassID " +
-                        "AND Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC",
+                        @"
+                            SELECT Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks,
+                                   Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks,
+                                   Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS,
+                                   EscortOut.NRIC, EscortOut.RANK, EscortOut.FULLNAME, EscortOut.CONTACT, EscortOut.COMPANY, EscortOut.VEHICLENUM, EscortOut.IsMilitaryPersonnel, EscortOut.AllowToEscort, EscortOut.BAN, EscortOut.Remarks
+                            FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort, PersonnelDetails AS EscortOut
+                            WHERE Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC AND EscortOut.NRIC=Record.ESCORTOUTNRIC AND Record.INCAMPSTATUS=TRUE 
+                                  AND Record.PASSNO=@_visitorpassID
+                            ORDER BY Record.TIMEIN DESC
+                        ",
                     Connection = vmsDatabase
                 };
                 comm.Parameters.AddWithValue("@_visitorpassID", vistorPassId);
@@ -788,14 +797,16 @@ namespace SLCMS.BusinessLogic {
                 vmsDatabase.Open();
                 var comm = new OleDbCommand {
                     CommandText =
-                        "SELECT " +
-                        "Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks," +
-                        "Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks," +
-                        "Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS " +
-                        "FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort " +
-                        "WHERE Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC AND Record.INCAMPSTATUS=FALSE " +
-                        "AND TIMEOUT >= @_startDateTime AND TIMEOUT <= @_endDateTime " +
-                        "ORDER BY Record.TIMEOUT DESC",
+                        @"
+                            SELECT Visitor.NRIC, Visitor.RANK, Visitor.FULLNAME, Visitor.CONTACT, Visitor.COMPANY, Visitor.VEHICLENUM, Visitor.IsMilitaryPersonnel, Visitor.AllowToEscort, Visitor.BAN, Visitor.Remarks,
+                                   Escort.NRIC, Escort.RANK, Escort.FULLNAME, Escort.CONTACT, Escort.COMPANY, Escort.VEHICLENUM, Escort.IsMilitaryPersonnel, Escort.AllowToEscort, Escort.BAN, Escort.Remarks,
+                                   Record.TIMEIN, Record.TIMEOUT, Record.PASSNO, Record.VEHPASSNO, Record.VEHNUM, Record.LOCKERKEY, Record.INCAMPSTATUS,
+                                   EscortOut.NRIC, EscortOut.RANK, EscortOut.FULLNAME, EscortOut.CONTACT, EscortOut.COMPANY, EscortOut.VEHICLENUM, EscortOut.IsMilitaryPersonnel, EscortOut.AllowToEscort, EscortOut.BAN, EscortOut.Remarks
+                            FROM VisitorRecords As Record, PersonnelDetails As Visitor, PersonnelDetails As Escort, PersonnelDetails AS EscortOut
+                            WHERE Visitor.NRIC=Record.NRIC AND Escort.NRIC=Record.ESCORTNRIC AND EscortOut.NRIC=Record.ESCORTOUTNRIC AND Record.INCAMPSTATUS=FALSE 
+                                  AND TIMEOUT >= @_startDateTime AND TIMEOUT <= @_endDateTime
+                            ORDER BY Record.TIMEIN DESC
+                        ",
                     Connection = vmsDatabase
                 };
                 comm.Parameters.AddWithValue("@_startDateTime", $"{startDateTime:yyyy-MM-dd} 12:00:00 AM");

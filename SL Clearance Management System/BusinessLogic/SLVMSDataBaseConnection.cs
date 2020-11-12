@@ -746,8 +746,8 @@ namespace SLCMS.BusinessLogic {
                 foreach (var record in records)
                 {
                     comm.CommandText =
-                        "INSERT INTO VisitorRecords (NRIC, ESCORTNRIC, TIMEIN, TIMEOUT, PASSNO, VEHPASSNO, LOCKERKEY, VEHNUM, INCAMPSTATUS) " +
-                        "VALUES (@_nric, @_escortnric, @_timein, @_timeout, @_passno, @_vehpassno, @_locker, @_vehnum, TRUE)";
+                        "INSERT INTO VisitorRecords (NRIC, ESCORTNRIC, TIMEIN, TIMEOUT, PASSNO, VEHPASSNO, LOCKERKEY, VEHNUM, INCAMPSTATUS, ESCORTOUTNRIC) " +
+                        "VALUES (@_nric, @_escortnric, @_timein, @_timeout, @_passno, @_vehpassno, @_locker, @_vehnum, TRUE, @_escortoutnric)";
 
                     //Add Book In Record
                     comm.Parameters.AddWithValue("@_nric", record.NRIC);
@@ -758,6 +758,7 @@ namespace SLCMS.BusinessLogic {
                     comm.Parameters.AddWithValue("@_vehpassno", record.VehiclePass ?? "");
                     comm.Parameters.AddWithValue("@_locker", record.LockerNum ?? "");
                     comm.Parameters.AddWithValue("@_vehnum", record.VehicleNum ?? "");
+                    comm.Parameters.AddWithValue("@_escortoutnric", "NA");
 
                     comm.ExecuteNonQuery();
                     comm.Parameters.Clear();
